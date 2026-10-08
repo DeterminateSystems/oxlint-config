@@ -1,0 +1,6 @@
+.direnv
+result
+result-*
+
+node_modules
+*.tar.gz
