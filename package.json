@@ -1,0 +1,34 @@
+{
+  "name": "@determinate-systems/oxlint-config",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DeterminateSystems/oxlint-config.git"
+  },
+  "files": [
+    "default.js",
+    "default.d.ts",
+    "typed.js",
+    "typed.d.ts",
+    "oxfmt.js",
+    "oxfmt.d.ts",
+    "plugins"
+  ],
+  "type": "module",
+  "exports": {
+    "./default": "./default.js",
+    "./typed": "./typed.js",
+    "./oxfmt": "./oxfmt.js"
+  },
+  "scripts": {
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt --check",
+    "format:fix": "oxfmt --write"
+  },
+  "peerDependencies": {
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0"
+  }
+}
