@@ -1,7 +1,11 @@
 {
   "name": "@determinate-systems/oxlint-config",
   "version": "1.0.0",
-  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DeterminateSystems/oxlint-config.git"
+  },
   "files": [
     "default.js",
     "default.d.ts",
@@ -11,6 +15,7 @@
     "oxfmt.d.ts",
     "plugins"
   ],
+  "type": "module",
   "exports": {
     "./default": "./default.js",
     "./typed": "./typed.js",
