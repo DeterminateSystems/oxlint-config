@@ -1,5 +1,29 @@
 {
   "name": "@determinate-systems/oxlint-config",
   "version": "1.0.0",
-  "type": "module"
+  "type": "module",
+  "files": [
+    "default.js",
+    "default.d.ts",
+    "typed.js",
+    "typed.d.ts",
+    "oxfmt.js",
+    "oxfmt.d.ts",
+    "plugins"
+  ],
+  "exports": {
+    "./default": "./default.js",
+    "./typed": "./typed.js",
+    "./oxfmt": "./oxfmt.js"
+  },
+  "scripts": {
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt --check",
+    "format:fix": "oxfmt --write"
+  },
+  "peerDependencies": {
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0"
+  }
 }
