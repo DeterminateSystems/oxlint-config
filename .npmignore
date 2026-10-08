@@ -1,0 +1,16 @@
+*
+
+!package.json
+
+# supporting code
+!plugins/*.js
+
+# lint rule bundles
+!default.js
+!default.d.ts
+!typed.js
+!typed.d.ts
+
+# oxfmt
+!oxfmt.js
+!oxfmt.d.ts
