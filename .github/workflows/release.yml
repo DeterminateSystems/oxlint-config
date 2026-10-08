@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  queue: single
+
+jobs:
+  version:
+    name: version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      published: ${{ steps.version.outputs.published }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: DeterminateSystems/determinate-nix-action@main
+      - uses: DeterminateSystems/flakehub-cache-action@main
+
+      - name: Check publishing status
+        id: version
+        run: |
+          package=$(nix develop --command node -p 'require("./package.json").name')
+          version=$(nix develop --command node -p 'require("./package.json").version')
+          echo "version=$version" >>"$GITHUB_OUTPUT"
+
+          if nix develop --command npm view "$package@v$version" 2>/dev/null; then
+            echo published=true >>"$GITHUB_OUTPUT"
+          else
+            echo published=false >>"$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    name: Publish ${{ needs.version.outputs.version }} to npm
+    needs: version
+    if: needs.version.outputs.published == 'false' && github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write # create tags
+      id-token: write # npm trusted publishing w/OIDC
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: DeterminateSystems/determinate-nix-action@main
+      - uses: DeterminateSystems/flakehub-cache-action@main
+
+      - name: npm ci
+        run: nix develop --command npm ci
+
+      - name: publish
+        run: nix develop --command npm publish --verbose --access public
+
+      - name: tag v${{ needs.version.outputs.version }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          TAG: v${{ needs.version.outputs.version }}
+
+        run: >
+          gh api
+          --method POST
+          "/repos/$REPO/git/refs"
+          -f "ref=refs/tags/$TAG"
+          -f "sha=$SHA"

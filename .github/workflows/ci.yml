@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    name: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: DeterminateSystems/determinate-nix-action@main
+      - uses: DeterminateSystems/flakehub-cache-action@main
+
+      - name: Nix formatting
+        if: success() || failure()
+        run: nix develop --command nixfmt --check flake.nix
+
+      - name: npm ci
+        if: success() || failure()
+        run: nix develop --command npm ci
+
+      - name: oxlint
+        if: success() || failure()
+        run: nix develop --command npm run lint
+
+      - name: oxfmt
+        if: success() || failure()
+        run: nix develop --command npm run format
+
+  success:
+    runs-on: ubuntu-latest
+    permissions: {}
+    needs:
+      - checks
+    if: always()
+    steps:
+      - run: "true"
+      - run: exit 1
+        if: |
+          contains(needs.*.result, 'failure') ||
+          contains(needs.*.result, 'cancelled')
